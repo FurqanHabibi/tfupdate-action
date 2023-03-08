@@ -86,6 +86,17 @@ function run_tfupdate {
   git config --local user.email "${USER_EMAIL}"
   git config --local user.name "${USER_NAME}"
 
+  # Remove existing PR if INPUT_RECREATE_PR is enabled
+  if [ ${INPUT_RECREATE_PR} ]; then
+    EXISTING_PR=$(hub pr list -s "open" -f "%t: %U%n" | grep -x "${ESCAPED_MESSAGE}:.*")
+    EXISTING_PR_NUM=$(basename $EXISTING_PR) 
+    EXISTING_PR_TITLE=${EXISTING_PR%%:*}
+    if $EXISTING_PR; then
+      gh pr edit $EXISTING_PR_NUM -t "(cancelled) $EXISTING_PR_TITLE"
+      gh pr close $EXISTING_PR_NUM -d
+    fi
+  fi
+
   # Checkout a branch if a PR does not exist.
   ESCAPED_MESSAGE=$(echo $UPDATE_MESSAGE | sed "s/\./\\\./g; s/\]/\\\]/g; s/\[/\\\[/g")
   if hub pr list -s "open" -f "%t: %U%n" | grep -x "${ESCAPED_MESSAGE}:.*"; then

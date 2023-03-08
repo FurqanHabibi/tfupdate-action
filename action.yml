@@ -39,6 +39,10 @@ inputs:
   reviewer:
     description: "Reviewer to be assigned when creating a PR"
     required: false
+  recreate_pr:
+    description: "Whether to recreate PR if already exist"
+    required: false
+    default: "false"
 
 runs:
   using: "docker"
